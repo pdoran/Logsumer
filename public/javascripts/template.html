@@ -1,0 +1,22 @@
+<script type="text/template" id="loglist">
+  <ul>
+  <% _.each(logs,function(log) { var val = log.value; %>
+  <li>
+    <div class="field" id="site">SITE: <%= val.site %></div>
+    <div class="field" id="threadid">THREADID: <%= val.threadId %></div>
+    <div class="field" id="timestamp">TIME: <%= val.timestamp %></div>
+    <div class="field" id="level">LEVEL: <%= val.level %></div>
+    <div class="field" id="message"><%= val.message %></div>
+  </li>
+  <% }); %>
+  </ul>
+</script>
+<script type="text/template" id="log-row-template">
+  <li>
+    <div class="field" id="site">SITE: <%= val.site %></div>
+    <div class="field" id="threadid">THREADID: <%= val.threadid %></div>
+    <div class="field" id="timestamp">TIME: <%= val.timestamp %></div>
+    <div class="field" id="level">LEVEL: <%= val.level %></div>
+    <div class="field" id="message"><%= val.message %></div>
+  </li>
+</script>

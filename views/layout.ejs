@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LogWeb</title>
+  <link rel="stylesheet" type="text/css" href="stylesheets/bootstrap.css" />
+  <style>
+    a {
+      text-decoration: none;
+    }
+  </style>
+  <script src="/javascripts/jquery.js"></script>
+  <script src="/javascripts/jquery-ui-1.8.16.custom.min.js"></script>
+  <script src="/javascripts/json2.js"></script>
+  <script src="/javascripts/underscore.js"></script>
+  <script src="/javascripts/bootstrap.js"></script>
+  <script src="/javascripts/backbone.js"></script>
+  
+</head>
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container">
+      <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="brand" href="#">Project name</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li class="active">
+            <a href="#">Home</a>
+          </li>
+          <li>
+            <a href="#logs/ERROR">ERROR</a>
+          </li>
+          <li>
+            <a href="#logs/INFO">INFO</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<%- body %>
