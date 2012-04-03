@@ -5,7 +5,6 @@ var express = require('express'),
     app = express.createServer(),
     couchstore = require('./store.js').Couch;
     db = couchstore.connect('lazysoftware.iriscouch.com', 80,"log","","");
-console.log(util.inspect(couchstore));
 app.use(express.bodyParser());
 var diffBucket = {
   "ERROR": [
@@ -26,7 +25,7 @@ app.post('/logger', function(req, resp) {
 app.get('/logs/level/:level?', function(req, resp) {
   db.select({db:"log",view:"level",input:{key: req.params.level}},function(err, docs) { 
     if(err) { resp.send(err); }
-    else { resp.send(docs.rows); }
+    else { resp.send(docs); }
   });
 });
 
