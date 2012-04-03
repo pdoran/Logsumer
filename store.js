@@ -3,60 +3,48 @@ var _ = require("underscore"),
 	util = require("util");
 
 
-var BaseStore = {
-	url: "",
-	username: "",
-	password: "",
-	connection: null,
-	connect : function(host,port,db,user,pass) {},
-	create : function(object,callback) {},
-	update: function(object,callback) {},
-	findById : function(id,callback) {},
-	select : function(query,callback) {},
-	log: function(message) {
+var BaseStore = function() {
+	var connection = null;
+	this.connect = function(host,port,db,user,pass) {};
+	this.create = function(object,callback) {};
+	this.update =  function(object,callback) {};
+	this.findById = function(id,callback) {};
+	this.select = function(query,callback) {};
+	this.log = function(message) {
 		console.log(message);
-	}
+	};
 };
 
 var CouchStore = (function() {
-	var couch = {
-		connection: null,
-		connect: function(host,port,db,user,pass) {
+	this.__proto__ = BaseStore.prototype;
+	var connection = null;
+	this.connect = function(host,port,db,user,pass) {
 			var client = couchdb.createClient(port, host);
-	    	this.connection = client.db(db);
+	    	connection = client.db(db);
 	    	return this;
-		},
-		create: function(object,callback) {
+	};
+	this.create = function(object,callback) {
 
-		},
-		update: function(object,callback) {
+	}
+	this.update = function(object,callback) {
 
-		},
-		findById: function(id,callback) {
+	};
+	this.findById = function(id,callback) {
 
-		},
-		select: function(query,callback) {
-			console.log(util.inspect(query));
-			this.connection.view(query.db,query.view,query.input,function(err,data){
-				var newData =null;
-				if(err) { 
-					
-				} else {
-					var newData = _.map(data,function(val) { return val.value; });
-				}
-				callback(err,{});
-			});
-		}
+	};
+	this.select = function(query,callback) {
+		connection.view(query.db,query.view,query.input,function(err,data){
+			var newData = null;
+			if(err) { 
+				console.log(err.toString());
+			} else {
+				newData = _.map(data.rows,function(val) { return val.value; });
+			}
+			callback(err,newData);
+		});
 	};
 
-	return _.extend({},BaseStore,couch);
-		
+	return this;
 })();
 
 module.exports.Couch = CouchStore;
-
-
-
-
-
-
