@@ -24,7 +24,7 @@ var CouchStore = (function() {
 	    	return this;
 	};
 	this.create = function(object,callback) {
-
+		connection.create(object,callback);
 	}
 	this.update = function(object,callback) {
 

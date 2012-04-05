@@ -7,18 +7,11 @@ var express = require('express'),
     db = couchstore.connect('lazysoftware.iriscouch.com', 80,"log","","");
 app.use(express.bodyParser());
 var diffBucket = {
-  "ERROR": [
-  
-  ],
-  "WARNING": [
-   
-  ],
-  "INFO": [
-   
-  ]
+  "ERROR": [],
+  "WARNING": [],
+  "INFO": []
 };
-app.post('/logger', function(req, resp) { 
-    console.log(util.inspect(req.body));
+app.post('/logs', function(req, resp) { 
     db.create(req.body);
     resp.send(req.body);
 });
@@ -38,7 +31,6 @@ app.get('/funk', function(req, resp) {
       var afterCount = docs.rows[2].value.message.length;
       var wordLength = beforeCount + afterCount / 2;
       var diffs = jsDiff.diffWords(docs.rows[1].value.message, docs.rows[2].value.message);
-      console.log(util.inspect(diffs));
       var diffObj=diffHTMLGenerator(diffs);
       var threshhold = false;
       if(passesThreshold(diffObj,(2/3))) {
@@ -69,12 +61,6 @@ app.get('/', function(req, resp) {
     resp.send("<html><body>"+diffString+"</body></html>");
 });
 
-var guidGenerator = function () {
-    var S4 = function() {
-       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-    };
-    return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
-}
 var passesThreshold = function(objDiff, threshold) {
   return (objDiff.diffSameTextLength * (threshold)) >= (objDiff.diffAddsTextLength+objDiff.diffRemovesTextLength);
 }

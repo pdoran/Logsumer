@@ -6,6 +6,7 @@
 var express = require('express')
   , routes = require('./routes')
   , ejs = require('ejs')
+  , plates = require('plates')
   , request = require('request');
 
 var app = module.exports = express.createServer();
@@ -40,6 +41,15 @@ app.get('/logs/level/:level?', function(req, resp) {
   req.pipe(request(requestURL)).pipe(resp);
   
 });
+app.get('/magic', function(req, resp){
+  var html = '<ul class="people"><li><span id="name"></span> <span id="age"></span></li></ul>';
+  var data = { people : [
+      {name:"Bob", age: 27},
+      {name:"Lisa", age: 28}
+    ]
 
-app.listen(3001);
+  };
+  resp.send(plates.bind(html, data));
+})
+app.listen(3002);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
