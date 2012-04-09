@@ -4,6 +4,7 @@ var Logsumer = module.exports = function(db) {
   var self = {};
   self.create = function(object,callback) {
     db.create(object,function(err,doc) {
+      console.log("Creating...");
       callback(err,doc);
     });
   };
@@ -17,5 +18,15 @@ var Logsumer = module.exports = function(db) {
       callback(err,docs);
     });  
   };
+  self.findByErrorId = function(id,callback) {
+    self.selectLevel("ERROR",function(err,docs){
+      var doc = null;
+      for(i=0;i<docs.length;i++) {
+        var doc = docs[i];
+        if(doc.message.indexOf(id)!=-1) break;
+      }
+        callback(err,doc);
+    });
+  }
   return self;
 }
