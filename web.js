@@ -7,6 +7,7 @@ var express = require('express')
   , routes = require('./routes')
   , ejs = require('ejs')
   , plates = require('plates')
+  , dnode = require('dnode')
   , request = require('request');
 
 var app = module.exports = express.createServer();
@@ -30,26 +31,34 @@ app.configure('production', function(){
 });
 
 // Routes
-
 app.get('/', function(req, res) {
   res.render("index.ejs");
 });
 
 app.get('/logs/level/:level?', function(req, resp) {
-  var requestURL = "http://localhost:3000"+req.url;
-  console.log(requestURL);
-  req.pipe(request(requestURL)).pipe(resp);
+  dnode.connect(7000,function(remote){
+    console.log("remoting to " + remote.toString());
+    remote.selectLevel(req.params.level, function(err, docs){
+      if(err) { console.log(err); resp.send(500); }
+      else { resp.send(docs); }
+    });
+    
+  });
+  //var requestURL = "http://localhost:3000"+req.url;
+  //console.log(requestURL);
+  //req.pipe(request(requestURL)).pipe(resp);
   
 });
 app.get('/magic', function(req, resp){
-  var html = '<ul class="people"><li><span id="name"></span> <span id="age"></span></li></ul>';
+  var html = '<ul class="peoples"><li class="people"><span id="name"></span> <span id="age"></span></li></ul>';
   var data = { people : [
       {name:"Bob", age: 27},
       {name:"Lisa", age: 28}
-    ]
+  ]
 
   };
   resp.send(plates.bind(html, data));
 })
 app.listen(3002);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+

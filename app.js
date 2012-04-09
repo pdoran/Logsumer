@@ -2,21 +2,46 @@ var express = require('express'),
     util = require('util'),
     //couchdb = require('felix-couchdb'),
     jsDiff = require('./diff'),
+    couchstore = require('./store.js').Couch,
+    dnode = require('dnode'),
     app = express.createServer(),
-    couchstore = require('./store.js').Couch;
+    Logsumer = require('./logsumer'),
     db = couchstore.connect('lazysoftware.iriscouch.com', 80,"log","","");
+
 app.use(express.bodyParser());
 var diffBucket = {
   "ERROR": [],
-  "WARNING": [],
+  "WARNING": [],  
   "INFO": []
 };
+
+var logger = new Logsumer(db);
+//dnode functions
+var server = dnode({
+  findById : function(id, cb) {
+    logger.findById(id,cb);
+  },
+  selectLevel : function(level,cb) {
+    console.log("Select level: " + level);
+    logger.selectLevel(level,cb);
+  }
+});
+server.listen(7000);
+
 app.post('/logs', function(req, resp) { 
-    db.create(req.body);
-    resp.send(req.body);
+    logger(req.body,function(err,doc){
+      if(err) { console.log(err); }
+    });
+    resp.send(200);
+});
+app.get('/logs/:id?',function(req, resp){
+  logger.findById(req.params.id,function(err,doc){
+    if(err) { resp.send(err); }
+    else { resp.send(doc); }
+  });
 });
 app.get('/logs/level/:level?', function(req, resp) {
-  db.select({db:"log",view:"level",input:{key: req.params.level}},function(err, docs) { 
+  logger.selectLevel(req.params.level,function(err, docs) { 
     if(err) { resp.send(err); }
     else { resp.send(docs); }
   });

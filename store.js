@@ -30,7 +30,12 @@ var CouchStore = (function() {
 
 	};
 	this.findById = function(id,callback) {
-
+		connection.getDoc(id,function(err,data){
+			if(err) {
+				this.log(err.toString());
+			}
+			callback(err,data);
+		});
 	};
 	this.select = function(query,callback) {
 		connection.view(query.db,query.view,query.input,function(err,data){

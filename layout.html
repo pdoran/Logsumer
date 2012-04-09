@@ -1,7 +1,7 @@
 <html>
 <head>
 <style>
-  .field {
+  .item {
     background-color: gray;
     padding: 5px;
     margin: 10px;
@@ -22,19 +22,21 @@
     background: linear-gradient(top, #eeeeee 0%,#cccccc 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#cccccc',GradientType=0 ); /* IE6-8 */
   }
+  ul { list-style-type:none;}
   
 </style>
 <body>
 <ul>
-<% for(var i=0; i<list.length; i++) { var val = list[i].value; %>
+
 <li>
+<div class="item">
 <div class="field" id="site">SITE: <%= val.site %></div>
 <div class="field" id="threadid">THREADID: <%= val.threadid %></div>
 <div class="field" id="timestamp">TIME: <%= val.timestamp %></div>
 <div class="field" id="level">LEVEL: <%= val.level %></div>
 <div class="field" id="message"><%= val.message %></div>
+</div>
 </li>
-<% } %>
 </ul>
 
 </body>
