@@ -1,6 +1,8 @@
 Logsumer
 ========
 
+[![Build Status](https://secure.travis-ci.org/pdoran/Logsumer.png?branch=master)](http://travis-ci.org/pdoran/Logsumer)
+
 log api requirements:
 ---------------------
 
