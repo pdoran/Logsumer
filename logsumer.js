@@ -3,6 +3,7 @@
 var Logsumer = module.exports = function(db) {
   var self = {};
   self.create = function(object,callback) {
+    if(object.timestamp) { object.timestamp = object.timestamp.toJSON().replace("T"," ");}
     db.create(object,function(err,doc) {
       console.log("Creating...");
       callback(err,doc);
@@ -25,7 +26,15 @@ var Logsumer = module.exports = function(db) {
         var doc = docs[i];
         if(doc.message.indexOf(id)!=-1) break;
       }
-        callback(err,doc);
+      callback(err,doc);
+    });
+  }
+  self.selectDate = function(date,callback) {
+    var dateString = "";
+    if(date instanceof Date) { dateString = date.toISOString().split("T")[0]; }
+    else { dateString = date; }
+    db.select({db:"log",view:"date",input:{key: dateString}},function(err, docs){
+      callback(err,docs);
     });
   }
   return self;

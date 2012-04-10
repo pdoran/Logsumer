@@ -20,23 +20,32 @@ vows.describe('create new log').addBatch({
 						  },
 		'Callback produces error document created' : function(doc) {
 			assert.isNotNull (doc);
-		}
-
-	},
-	'when viewing ERROR log level' : {
-		topic: function() { var logger = new logsumer(db); 
-							logger.selectLevel("ERROR",this.callback);
+		},
+		'when viewing ERROR log level' : {
+			topic: function() { var logger = new logsumer(db); 
+								logger.selectLevel("ERROR",this.callback);
+								},
+			'should return with 3 logs' : function(docs) {
+				assert.strictEqual(docs.length>3,true);
+			}
+		},
+		'when finding byErrorId ' : {
+			topic: function() { var logger = new logsumer(db); 
+								logger.findByErrorId(ERROR1_guid,this.callback);
+								},
+			'should return with ERROR1 log' : function(doc) {
+				assert.deepEqual(doc.message,ERROR1.message);
+			}
+		},
+		'when findingy by Date' : {
+			topic: function() { var logger = new logsumer(db); 
+								logger.selectDate(new Date(),this.callback);
 							},
-		'should return with 3 logs' : function(docs) {
-			assert.strictEqual(docs.length>3,true);
-		}
-	},
-	'when finding byErrorId ' : {
-		topic: function() { var logger = new logsumer(db); 
-							logger.findByErrorId(ERROR1_guid,this.callback);
-							},
-		'should return with ERROR1 log' : function(doc) {
-			assert.deepEqual(doc.message,ERROR1.message);
+			'should return logs for specified date' : function(docs) {
+				//if(docs.length>0) {  }
+				//assert.isNotNull(docs);
+				assert.deepEqual(docs[0].timestamp.split(" ")[0], new Date().toJSON().split("T")[0]);
+			}
 		}
 	}
 }).run();

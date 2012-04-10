@@ -46,6 +46,12 @@ app.get('/logs/level/:level?', function(req, resp) {
     else { resp.send(docs); }
   });
 });
+app.get('/logs/date/:date?', function(req, resp) {
+  logger.selectDate(req.params.date,function(err, docs) { 
+    if(err) { resp.send(err); }
+    else { resp.send(docs); }
+  });
+});
 
 app.get('/funk', function(req, resp) {
     db.view('log','level', {key: 'INFO'},  function(err, docs) { 
