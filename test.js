@@ -46,6 +46,14 @@ vows.describe('create new log').addBatch({
 				//assert.isNotNull(docs);
 				assert.deepEqual(docs[0].timestamp.split(" ")[0], new Date().toJSON().split("T")[0]);
 			}
+		},
+		'when finding by Site' : {
+			topic: function() { var logger = new logsumer(db);
+								logger.selectSite(ERROR1.site,this.callback);
+							},
+			'should return with at least 1 log' : function(docs) {
+				assert.strictEqual(docs.length>0,true);
+			}
 		}
 	}
 }).run();

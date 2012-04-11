@@ -37,5 +37,10 @@ var Logsumer = module.exports = function(db) {
       callback(err,docs);
     });
   }
+  self.selectSite = function(site,callback) {
+    db.select({db:"log",view:"site",input:{key:site}},function(err,docs){
+      callback(err,docs);
+    });
+  }
   return self;
 }
