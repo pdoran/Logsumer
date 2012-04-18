@@ -2,11 +2,13 @@ var express = require('express'),
     util = require('util'),
     //couchdb = require('felix-couchdb'),
     jsDiff = require('./diff'),
-    couchstore = require('./store.js').Couch,
+    couchStore = require('./couchstore').Couch,
+    mongoStore = require('./mongostore').Mongo,
     dnode = require('dnode'),
     app = express.createServer(),
     Logsumer = require('./logsumer'),
-    db = couchstore.connect('lazysoftware.iriscouch.com', 80,"log","","");
+    db = couchStore.connect('lazysoftware.iriscouch.com', 80,"log","",""),
+    db_mongo = mongostore.connect('localhost',27017,"log","","");
 
 app.use(express.bodyParser());
 var diffBucket = {
@@ -15,7 +17,7 @@ var diffBucket = {
   "INFO": []
 };
 
-var logger = new Logsumer(db);
+var logger = new Logsumer(db_mongo);
 //dnode functions
 var server = dnode({
   findById : function(id, cb) {

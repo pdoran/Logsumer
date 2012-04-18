@@ -24,17 +24,33 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </a>
-      <a class="brand" href="#">Project name</a>
+      <a class="brand" href="#">Logsumer</a>
       <div class="nav-collapse">
         <ul class="nav">
           <li class="active">
             <a href="#">Home</a>
           </li>
-          <li>
-            <a href="#logs/ERROR">ERROR</a>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+              Log Level
+            <b class="caret"></b>
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <a href="#logs/ERROR">Error<span style="maring-left: 5px;" class="icon-ok"></span></a>
+            </li>          
+            <li>
+              <a href="#logs/WARNING">Warning</a>
+            </li>
+            <li>
+              <a href="#logs/INFO">Info</a>
+            </li>  
+            <li>
+              <a href="#logs/DEBUG">Debug</a>
+            </li>
           </li>
           <li>
-            <a href="#logs/INFO">INFO</a>
+            
           </li>
         </ul>
       </div>

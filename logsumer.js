@@ -1,9 +1,10 @@
 
 
 var Logsumer = module.exports = function(db) {
+  var sites = [];
   var self = {};
   self.create = function(object,callback) {
-    if(object.timestamp) { object.timestamp = object.timestamp.toJSON().replace("T"," ");}
+    if(object.timestamp) { object.timestamp = object.timestamp.toJSON();}
     db.create(object,function(err,doc) {
       console.log("Creating...");
       callback(err,doc);
@@ -15,7 +16,7 @@ var Logsumer = module.exports = function(db) {
     });  
   };
   self.selectLevel = function(level,callback) {
-    db.select({db:"log",view:"level",input:{key: level}},function(err, docs) { 
+    db.select({db:"log",view:"level",query:{"level": level}},function(err, docs) { 
       callback(err,docs);
     });  
   };
@@ -33,14 +34,24 @@ var Logsumer = module.exports = function(db) {
     var dateString = "";
     if(date instanceof Date) { dateString = date.toISOString().split("T")[0]; }
     else { dateString = date; }
-    db.select({db:"log",view:"date",input:{key: dateString}},function(err, docs){
+    db.select({db:"log",view:"date",query:{"timestamp": dateString}},function(err, docs){
       callback(err,docs);
     });
   }
   self.selectSite = function(site,callback) {
-    db.select({db:"log",view:"site",input:{key:site}},function(err,docs){
+    db.select({db:"log",view:"site",query:{"site":site}},function(err,docs){
       callback(err,docs);
     });
+  }
+  self.getSites = function(callback) {
+    if(sites.length>0) { 
+      db.log("Sites is cached fetching from cache");
+      callback(null,sites); 
+    }
+    else 
+    { 
+      db.distinct("site",callback);
+    }
   }
   return self;
 }
