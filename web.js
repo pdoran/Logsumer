@@ -4,6 +4,7 @@
  */
 
 var express = require('express')
+  , util = require('util')
   , routes = require('./routes')
   , ejs = require('ejs')
   , plates = require('plates')
@@ -35,7 +36,16 @@ app.get('/', function(req, res) {
   res.render("index.ejs");
 });
 
-app.get('/logs/level/:level?', function(req, resp) {
+app.get('/log', function(req,resp) {
+  console.log(util.inspect(req.query));
+  dnode.connect(7000,function(remote){
+    remote.filter(req.query,function(err,docs){
+      if(err) { console.log(err); resp.send(500); }
+      else { resp.send(docs); }
+    });
+  });
+});
+app.get('/log/level/:level?', function(req, resp) {
   dnode.connect(7000,function(remote){
     console.log("remoting to " + remote.toString());
     remote.selectLevel(req.params.level, function(err, docs){

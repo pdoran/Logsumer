@@ -3,18 +3,69 @@
 <head>
   <title>LogWeb</title>
   <link rel="stylesheet" type="text/css" href="stylesheets/bootstrap.css" />
+  <link rel="stylesheet" type="text/css" href="stylesheets/vader/jquery-ui-1.8.19.custom.css" />
   <style>
     a {
       text-decoration: none;
     }
+    ul {
+      list-style-type: none;
+    }
+    #list {
+      margin-top:60px;
+    }
+    .log-entry > div.row-fluid {
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+    .underline {
+      border-bottom-style:dotted;
+      border-bottom-width: 1px;
+      border-bottom-color: green;
+    }
+    .log-entry {
+      padding-top: 5px;
+      padding-left: 10px;
+      margin-bottom: 5px;
+      -moz-border-radius-topleft: 4px;
+      -moz-border-radius-topright: 4px;
+      -moz-border-radius-bottomright: 0px;
+      -moz-border-radius-bottomleft: 0px;
+      -webkit-border-radius: 4px 4px 4px 4px;
+      border-radius: 4px 4px 4px 4px;
+    }
+
   </style>
   <script src="/javascripts/jquery.js"></script>
-  <script src="/javascripts/jquery-ui-1.8.16.custom.min.js"></script>
+  <script src="/javascripts/jquery-ui-1.8.19.custom.min.js"></script>
   <script src="/javascripts/json2.js"></script>
   <script src="/javascripts/underscore.js"></script>
   <script src="/javascripts/bootstrap.js"></script>
   <script src="/javascripts/backbone.js"></script>
-  
+  <script src="/javascripts/backbone.marionette.min.js"></script>
+  <script src="/javascripts/moment.min.js"></script>
+  <script>
+
+    $().ready(function() {
+      //$('#filter').modal({backdrop:true,keyboard:true,show:true});
+        $('#slider').slider({
+          range: true,
+          values: [17, 100],
+          min: 0,
+          max: 100
+        }).bind("slide",function(event,ui){
+          $("#slider-left").html(ui.values[0]);
+          $("#slider-right").html(ui.values[1]);
+        });
+        $("#templates").load("/javascripts/template.html", function(responseText,textStatus, xhr){
+        if(textStatus=="success" || textStatus=="notmodified") {
+          MyApp.start({logs: new LogCollection()}); 
+        }
+      });
+        
+    });
+
+  </script>
 </head>
 <div class="navbar navbar-fixed-top">
   <div class="navbar-inner">
@@ -37,24 +88,38 @@
           </a>
           <ul class="dropdown-menu">
             <li>
-              <a href="#logs/ERROR">Error<span style="maring-left: 5px;" class="icon-ok"></span></a>
+              <a href="#log/ERROR">Error<span style="maring-left: 5px;" class="icon-ok"></span></a>
             </li>          
             <li>
-              <a href="#logs/WARNING">Warning</a>
+              <a href="#log/WARNING">Warning</a>
             </li>
             <li>
-              <a href="#logs/INFO">Info</a>
+              <a href="#log/INFO">Info</a>
             </li>  
             <li>
-              <a href="#logs/DEBUG">Debug</a>
+              <a href="#log/DEBUG">Debug</a>
             </li>
           </li>
-          <li>
-            
-          </li>
         </ul>
+        <li>
+          <a data-toggle="modal" href="#filter" >Filter</a>
+        </li>
+      </ul>
       </div>
     </div>
+  </div>
+</div>
+<div class="modal hide fade" id="filter">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>Filter</h3>
+  </div>
+  <div class="modal-body">
+    
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn">Close</a>
+    <a href="#" class="btn btn-primary">Save changes</a>
   </div>
 </div>
 <%- body %>

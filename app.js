@@ -8,7 +8,7 @@ var express = require('express'),
     app = express.createServer(),
     Logsumer = require('./logsumer'),
     db = couchStore.connect('lazysoftware.iriscouch.com', 80,"log","",""),
-    db_mongo = mongostore.connect('localhost',27017,"log","","");
+    db_mongo = mongoStore.connect('localhost',27017,"log","","");
 
 app.use(express.bodyParser());
 var diffBucket = {
@@ -26,6 +26,10 @@ var server = dnode({
   selectLevel : function(level,cb) {
     console.log("Select level: " + level);
     logger.selectLevel(level,cb);
+  },
+  filter: function(filter,cb) {
+    console.log("Filtering: " + util.inspect(filter));
+    logger.filter(filter,cb);
   }
 });
 server.listen(7000);

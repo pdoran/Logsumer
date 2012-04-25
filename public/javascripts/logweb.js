@@ -48,16 +48,16 @@ Logs = Backbone.Router.extend({
 });
 
 var Log = Backbone.Model.extend({
-	url : function() {
-		var base = 'logs';
-		if(this.isNew()) { return base; }
-		return base + '/' + this.id;
-	}
+  url : function() {
+    var base = 'logs';
+    if(this.isNew()) { return base; }
+    return base + '/' + this.id;
+  }
 });
 
 LogCollection = Backbone.Collection.extend({
-	model: Log,
-	url: 'logs',
+  model: Log,
+  url: 'logs',
   initialize: function() {
     this.bind("reset", this.doRender, this);
   },

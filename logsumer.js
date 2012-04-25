@@ -1,10 +1,22 @@
-
+var moment = require('moment');
 
 var Logsumer = module.exports = function(db) {
   var sites = [];
   var self = {};
   self.create = function(object,callback) {
-    if(object.timestamp) { object.timestamp = object.timestamp.toJSON();}
+    if(object.timestamp) { 
+      var ts = moment(object.timestamp);
+      object.date = ts.format("YYYY-MM-DD");
+      object.time = ts.hours()+":"+ts.minutes()+":"+ts.seconds()+"."+ts.milliseconds();
+      object.timestamp = object.timestamp.toJSON();
+      object.timezone = ts.format("Z");
+    } else {
+      var ts = new Date();
+      object.timestamp = ts.toJSON();
+      object.date = ts.format("YYYY-MM-DD");
+      object.time = ts.hours()+":"+ts.minutes+":"+ts.seconds()+"."+ts.milliseconds();
+      object.timezone = ts.format("Z");
+    }
     db.create(object,function(err,doc) {
       console.log("Creating...");
       callback(err,doc);
@@ -15,6 +27,11 @@ var Logsumer = module.exports = function(db) {
       callback(err,doc);
     });  
   };
+  self.filter = function(filter,callback) {
+    db.select({db:"log",view:"filter",query:filter},function(err,docs){
+      callback(err,docs);
+    })
+  }
   self.selectLevel = function(level,callback) {
     db.select({db:"log",view:"level",query:{"level": level}},function(err, docs) { 
       callback(err,docs);

@@ -20,7 +20,14 @@ log api requirements:
 Web Interface
 -------------
 
-* Search capability
+* List of log entries (log entry template, log model, log collection)
+	* Unread marker
+	* Duplicate indicator/viewer
+	* Scrollspy to quick jump to date/times
+* Filters (filter view, filter tabs(?), filter model)
+	* Multiple filter views
+	* Save filters	
+* Search capability (quick filtering -> input to filter model)
   * Site
   * Date/time between
   * Thread Id
