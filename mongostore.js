@@ -88,7 +88,15 @@ var MongoStore = (function() {
 		if(query && query.query) { query = query.query; }
 		dbConnectionWrapper(function(db){
 			db.collection(logCollection,{}, function(err, collection){
-				collection.find(query).toArray(callback);
+				var objQuery = {};
+				_.each(query,function(value,key){
+					if(_.isArray(value)) {
+						objQuery[key] = {$in: value }
+					} else {
+						objQuery[key] = value;
+					}
+				});
+				collection.find(objQuery,{sort:{"timestamp":-1}}).toArray(callback);
 			})
 		});
 		

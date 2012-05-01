@@ -1,55 +1,64 @@
-<script type="text/template" id="loglist">
-  <ul>
-  <% _.each(logs,function(val) { %>
-  <li class="log-entry" id="<%= val._id %>">
-    <div class="row-fluid" id="site"><div class="span3 underline"><div class="row-fluid"><div class="span4">Site:</div><div class="span8"><%= val.site %></div></div></div></div>
-    <div class="row-fluid" id="threadid"><div class="span3 underline"><div class="row-fluid"><div class="span4">Thread ID:</div><div class="span8"><%= val.threadid %></div></div></div></div>
-    <div class="row-fluid" id="timestamp"><div class="span3 underline"><div class="row-fluid"><div class="span4">Date and Time:</div><div class="span8"><%= val.timestamp %></div></div></div></div>
-    <div class="row-fluid" id="level"><div class="span3 underline"><div class="row-fluid"><div class="span4">Log Level:</div><div class="span8"><%= val.level %></div></div></div></div>
-    <div class="well" id="message"><%= val.message %></div>
-  </li>
-  <% }); %>
-  </ul>
-</script>
 <script type="text/template" id="log-row-template">
     <div style="display:none;" id="<%=_id%>"></div>
-    <div class="row-fluid" id="site"><div class="span3 underline"><div class="row-fluid"><div class="span4">Site:</div><div class="span8"><%= site %></div></div></div></div>
-    <div class="row-fluid" id="threadid"><div class="span3 underline"><div class="row-fluid"><div class="span4">Thread ID:</div><div class="span8"></div></div></div></div>
-    <div class="row-fluid" id="timestamp"><div class="span3 underline"><div class="row-fluid"><div class="span4">Date and Time:</div><div class="span8"><%= timestamp %></div></div></div></div>
-    <div class="row-fluid" id="level"><div class="span3 underline"><div class="row-fluid"><div class="span4">Log Level:</div><div class="span8"><%= level %></div></div></div></div>
+    <div>Site:<%= site %></div>
+    <div>Thread ID:</div>
+    <div>Date and Time:<%= timestamp %></div>
+    <div>Log Level:<%= level %></div>
     <div class="well" id="message"><%= message %></div>
 </script>
 <script type="text/template" id="filter-template">
-  <form class="form-horizontal">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>Filter</h3>
+  </div>
+  <div class="modal-body">
+  <form class="form-horizontal filter-form">
       <fieldset>
+        <div class="control-group">
+          <label class="control-label" for="filterName">Filter Name:</label>
+          <div class="controls">
+            <input type="text" name="filterName" id="filterName" />
+          </div>
+        </div>
         <div class="control-group">
           <label class="control-label" for="site">Site:</label>
           <div class="controls">
-            <select multiple="multiple" id="site">
-              <option>Site1</option>
-              <option>Site2</option>
-              <option>Site3</option>
+            <select multiple="multiple" name="site">
+              <%= optionRender("sites") %>
+              <% if(sites) { %>
+              <%= sites %>
+              <% } else { %>
+                No sites
+              <% }  %>
             </select>
           </div>
         </div>
         <div class="control-group">
           <label class="control-label" for="level">Log Level:</label>
           <div class="controls">
-            <select multiple="multiple" id="level">
-              <option>ERROR</option>
-              <option>WARNING</option>
-              <option>INFO</option>
-              <option>DEBUG</option>
+            <select multiple="multiple" name="level">
+              <%= optionRender("level") %>
             </select>
           </div>
         </div>
         <div class="control-group">
-          <label class="control-label" for="slider">Date Range:</label>
-          <div class="controls" id="slider-container">
-            <div id="slider"></div>
-            <span style="float:left" id="slider-left"></span><span style="float:right" id="slider-right"></span>
-          </div>
+          <!--<label class="control-label" for="slider">Date Range:</label>
+          <div class="controls" class="slider-container">
+            <div class="slider"></div>
+            <span style="float:left" class="slider-left"></span><span style="float:right" class="slider-right"></span>
+          </div>-->
+          <label class="control-label" for="dateLeft">From</label>
+          <input type="text" id="dateLeft" name="dateLeft"/>
         </div>
+        <div class="control-group">
+          <label class="control-label" for="dateRight">To</label>
+          <input type="text" id="dateRight" name="dateRight"/>
+        </div>
+        
       </fieldset>
   </form>
+  </div>
+  <div class="modal-footer">
+    <a href="#" class="btn btn-primary save-filter">Save</a>
+  </div>
 </script>

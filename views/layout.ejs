@@ -44,22 +44,16 @@
   <script src="/javascripts/backbone.js"></script>
   <script src="/javascripts/backbone.marionette.min.js"></script>
   <script src="/javascripts/moment.min.js"></script>
+  <script src="/javascripts/helpers.js"></script>
   <script>
-
+    var myLogCollection = null;
     $().ready(function() {
       //$('#filter').modal({backdrop:true,keyboard:true,show:true});
-        $('#slider').slider({
-          range: true,
-          values: [17, 100],
-          min: 0,
-          max: 100
-        }).bind("slide",function(event,ui){
-          $("#slider-left").html(ui.values[0]);
-          $("#slider-right").html(ui.values[1]);
-        });
+        
         $("#templates").load("/javascripts/template.html", function(responseText,textStatus, xhr){
         if(textStatus=="success" || textStatus=="notmodified") {
-          MyApp.start({logs: new LogCollection()}); 
+          myLogCollection = new LogCollection();
+          MyApp.start({logs: myLogCollection}); 
         }
       });
         
@@ -109,17 +103,7 @@
     </div>
   </div>
 </div>
-<div class="modal hide fade" id="filter">
-  <div class="modal-header">
-    <a class="close" data-dismiss="modal">×</a>
-    <h3>Filter</h3>
-  </div>
-  <div class="modal-body">
-    
-  </div>
-  <div class="modal-footer">
-    <a href="#" class="btn">Close</a>
-    <a href="#" class="btn btn-primary">Save changes</a>
-  </div>
+<div class="modal hide fade" id="filter" >
 </div>
+<div id="filter-tab"></div>
 <%- body %>

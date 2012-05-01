@@ -5,10 +5,11 @@
 
 var express = require('express')
   , util = require('util')
+  , _ = require('underscore')
   , routes = require('./routes')
   , ejs = require('ejs')
-  , plates = require('plates')
   , dnode = require('dnode')
+  , moment = require('moment')
   , request = require('request');
 
 var app = module.exports = express.createServer();
@@ -37,9 +38,19 @@ app.get('/', function(req, res) {
 });
 
 app.get('/log', function(req,resp) {
-  console.log(util.inspect(req.query));
+  var filterObj = _.pick(req.query,"site","level");
+  var hasLeft = _.has(req.query,"dateLeft");
+  var hasRight = _.has(req.query,"dateRight");
+  if( hasLeft && hasRight ) {
+    filterObj.date = { "$gte": new moment(req.query.dateLeft).format("YYYY-MM-DD") , "$lte" : new moment(req.query.dateRight).format("YYYY-MM-DD") };
+  } else if(hasLeft) {
+    filterObj.date = new moment(req.query.dateLeft).format("YYYY-MM-DD");
+  } else if(hasRight) {
+    filterObj.date = new moment(req.query.dateRight).format("YYYY-MM-DD");
+  }
+  console.log(util.inspect(filterObj)); 
   dnode.connect(7000,function(remote){
-    remote.filter(req.query,function(err,docs){
+    remote.filter(filterObj,function(err,docs){
       if(err) { console.log(err); resp.send(500); }
       else { resp.send(docs); }
     });
@@ -54,21 +65,7 @@ app.get('/log/level/:level?', function(req, resp) {
     });
     
   });
-  //var requestURL = "http://localhost:3000"+req.url;
-  //console.log(requestURL);
-  //req.pipe(request(requestURL)).pipe(resp);
-  
 });
-app.get('/magic', function(req, resp){
-  var html = '<ul class="peoples"><li class="people"><span id="name"></span> <span id="age"></span></li></ul>';
-  var data = { people : [
-      {name:"Bob", age: 27},
-      {name:"Lisa", age: 28}
-  ]
-
-  };
-  resp.send(plates.bind(html, data));
-})
 app.listen(3002);
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 
