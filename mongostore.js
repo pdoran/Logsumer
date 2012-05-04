@@ -75,12 +75,29 @@ var MongoStore = (function() {
 			});
 		});
 	};
+	self.save  = function(object, callback) {
+		dbConnectionWrapper(function(db){
+			db.collection(logCollection,{},function(err,collection){
+				collection.findAndModify(
+					{_id: new ObjectID(object._id)},
+					[["_id",1]],
+					object,
+					function(err,doc){
+					if(err) { console.log("ERROR Saving"); callback(err,doc); }
+					else { 
+						console.log("Found and updated " + util.inspect(doc)); 
+						callback(err,doc); 
+					}
+				});
+			});
+		});
+	};
 	self.findById = function(id,callback) {
 		
 		dbConnectionWrapper(function(db){
 			db.collection(logCollection,{}, function(err,collection){
 				self.log("[findById]: Finding id: " + id);
-				collection.findOne(id,callback);
+				collection.findOne({_id: id},callback);
 			});
 		});
 	};
