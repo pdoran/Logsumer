@@ -1,10 +1,26 @@
 <script type="text/template" id="log-row-template">
-    <div style="display:none;" id="<%=_id%>"></div>
-    <div>Site:<%= site %></div>
-    <div>Thread ID:</div>
-    <div>Date and Time:<%= timestamp %></div>
-    <div>Log Level:<%= level %></div>
-    <div class="well" id="message"><%= message %></div>
+  <div class="row-fluid">
+    <div class="span10">
+      <div style="display:none;" id="<%=_id%>"></div>
+      <div>Site:<%= site %></div>
+      <div>Thread ID: <%= threadId %></div>
+      <div>Date and Time:<%= timestamp %></div>
+      <div>Log Level:<%= level %></div>
+      <div class="well"><%= message %></div>
+    </div>
+    <div class="span2">
+      <p><% if(obj.isRead()) { %> 
+         <a class="toggle-read btn btn-success"><i class="icon-evenlope"></i>Mark Unread</a>
+      <% } else { %>
+        <a class="toggle-read btn btn-danger"><i class="icon-evenlope"></i>Mark Read</a>
+      <% } %></p>
+      <p><% if(obj.isFlag()) { %> 
+        <a class="toggle-flag btn btn-danger"><i class="icon-flag"></i>Remove Flag</a>
+      <% } else { %>
+        <a class="toggle-flag btn"><i class="icon-flag"></i>Flag</a>
+      <% } %></p>
+    </div>
+  </div>
 </script>
 <script type="text/template" id="filter-template">
   <div class="modal-header">

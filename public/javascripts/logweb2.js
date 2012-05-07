@@ -22,12 +22,7 @@ LogRouter = Backbone.Router.extend({
 MyApp.addInitializer(function(options){
   var logRouter = new LogRouter({logs: options.logs});
   var logCollectionView = new LogList({collection: options.logs});
-  var myFilter = new Filter({
-	sites: ["test1","test2"],
-	level: ["ERROR","WARNING","INFO","DEBUG"],
-	dates: [new Date(2012,03,20),new Date(2012,03,22),new Date(2012,03,23)],
-	filter:[]
-  });
+  var myFilter = options.filterOptions;
   myFilter.on("change:filter", function(model,filter){
   	options.logs.applyFilter(filter);
   });
@@ -38,11 +33,36 @@ MyApp.addInitializer(function(options){
 
 
 Log = Backbone.Model.extend({
-	 url : function() {
+	idAttribute: "_id",
+	url : function() {
     var base = 'log';
     if(this.isNew()) { return base; }
     return base + '/' + this.id;
+  },
+  defaults: {
+  	"threadId": ""
+  },
+  read: function() {
+  	this.toggle("is_read");
+  	this.save();
+  },
+  flag: function() {
+  	this.toggle("is_flag");
+  	this.save();
+  },
+  toggle: function(field) {
+  	var obj = {};
+  	if(this.get(field)==1 || this.get(field)=="1") {
+  		obj[field] = "0";
+  	} else {
+  		obj[field] = "1";
   	}
+  	this.set(obj);
+  },
+  parse: function(response) {
+  	console.log(response);
+  	return response;
+  }
 });
 
 Filter = Backbone.Model.extend({
@@ -60,14 +80,47 @@ LogCollection = Backbone.Collection.extend({
     	this.applyFilter({level:level});
   	},
   	applyFilter: function(filter) {
-  		this.fetch({data: filter});
+  		this.fetch({data: filter,
+  			success: function(collection,response){
+  				console.log(collection.toJSON());
+  			},
+  			error: function(collection,response){
+					console.log(response);
+  			}});
   	}
+  	
 });
 
 LogRow = Backbone.Marionette.ItemView.extend({
+	initialize: function(){
+    this.bindTo(this.model, "change", this.renderChange);
+  },
   template: "#log-row-template",
   tagName: "li",
-  className: "log-entry"
+  className: "log-entry",
+  events: {
+  	"click .toggle-read": "read",
+  	"click .toggle-flag": "flag"
+  },
+  renderChange: function() {
+  	this.render();
+  },
+  read: function() {
+  	this.model.read();
+  },
+  flag: function() {
+  	this.model.flag();
+  },
+  templateHelpers: {
+  	isRead: function() {
+  		if(this.is_read && parseInt(this.is_read,10)==1) return true;
+  		return false;
+  	},
+  	isFlag: function() {
+  		if(this.is_flag && parseInt(this.is_flag,10)==1) return true;
+  		return false;
+  	}
+  }
 });
 
 FilterModal = Backbone.Marionette.ItemView.extend({
@@ -101,28 +154,15 @@ FilterModal = Backbone.Marionette.ItemView.extend({
 				dates.not( this ).datepicker( "option", option, date );
 			}
 		});
-		/*sliderElement.slider({
-          range: (max>0) ? true : false,
-          min: min,
-          max: max,
-          values: [min,max]
-        }).bind("slide",function(event,ui){
-          if(datesArr==null) {
-          	sliderLeft.html("Today");	
-          	sliderRight.html("Today");
-          } else {
-          	var dateLeft = new moment(datesArr[ui.values[0]]);
-          	var dateRight = new moment(datesArr[ui.values[1]]);
-          	sliderLeft.html(dateLeft.format("MM/DD/YYYY"));	
-          	sliderRight.html(dateRight.format("MM/DD/YYYY"));
-          }
-        });*/
-
 	},
 	saveFilter: function() {
 		var filterArr = $(".filter-form").serializeObject();
-		filterArr.dateLeft = new moment(filterArr.dateLeft).toDate().toJSON();
-		filterArr.dateRight = new moment(filterArr.dateRight).toDate().toJSON();
+		if(filterArr.dateLeft) {
+			filterArr.dateLeft = new moment(filterArr.dateLeft).toDate().toJSON();	
+		}
+		if(filterArr.dateRight) {
+			filterArr.dateRight = new moment(filterArr.dateRight).toDate().toJSON();	
+		}
 		this.model.set({filter:filterArr});
 		$('#filter').modal('hide');
 	},

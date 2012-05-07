@@ -1,13 +1,10 @@
 var express = require('express'),
     util = require('util'),
-    //couchdb = require('felix-couchdb'),
     jsDiff = require('./diff'),
-    couchStore = require('./couchstore').Couch,
     mongoStore = require('./mongostore').Mongo,
     dnode = require('dnode'),
     app = express.createServer(),
     Logsumer = require('./logsumer'),
-    db = couchStore.connect('lazysoftware.iriscouch.com', 80,"log","",""),
     db_mongo = mongoStore.connect('localhost',27017,"log","","");
 
 app.use(express.bodyParser());
@@ -29,54 +26,30 @@ var server = dnode({
   },
   filter: function(filter,cb) {
     console.log("Filtering: " + util.inspect(filter));
-    logger.filter(filter,cb);
+    logger.filter(filter,function(err,docs){
+      cb(null,docs);
+    });
+  },
+  saveLog: function(doc,cb) {
+    console.log("Saving: " + util.inspect(doc));
+    logger.save(doc,cb);
+  },
+  distincts: function(key,cb) {
+    if(typeof key === "string") { key = [key]; }
+    console.log("Finding distincts for: " + util.inspect(key));
+    logger.distincts(key,cb);
   }
 });
 server.listen(7000);
 
 app.post('/logs', function(req, resp) { 
-    logger(req.body,function(err,doc){
+    logger.create(req.body,function(err,doc){
       if(err) { console.log(err); }
     });
     resp.send(200);
 });
-app.get('/logs/:id?',function(req, resp){
-  logger.findById(req.params.id,function(err,doc){
-    if(err) { resp.send(err); }
-    else { resp.send(doc); }
-  });
-});
-app.get('/logs/level/:level?', function(req, resp) {
-  logger.selectLevel(req.params.level,function(err, docs) { 
-    if(err) { resp.send(err); }
-    else { resp.send(docs); }
-  });
-});
-app.get('/logs/date/:date?', function(req, resp) {
-  logger.selectDate(req.params.date,function(err, docs) { 
-    if(err) { resp.send(err); }
-    else { resp.send(docs); }
-  });
-});
 
-app.get('/funk', function(req, resp) {
-    db.view('log','level', {key: 'INFO'},  function(err, docs) { 
-    if(err) { resp.send(err); }
-    else {
-      console.log(util.inspect(docs));
-      var beforeCount = docs.rows[1].value.message.length;
-      var afterCount = docs.rows[2].value.message.length;
-      var wordLength = beforeCount + afterCount / 2;
-      var diffs = jsDiff.diffWords(docs.rows[1].value.message, docs.rows[2].value.message);
-      var diffObj=diffHTMLGenerator(diffs);
-      var threshhold = false;
-      if(passesThreshold(diffObj,(2/3))) {
-        threshhold =true;
-      }
-      resp.send("<html><body>"+diffObj.diffHTML+"<br>" + "diffAdds: " + diffObj.diffAdds + ", diffRemoves: " + diffObj.diffRemoves + ", diffSame: " + diffObj.diffSame + ", diffAddsTextLength: " + diffObj.diffAddsTextLength + ", diffRemovesTextLength: " + diffObj.diffRemovesTextLength + ", diffSameTextLength: " + diffObj.diffSameTextLength + " Threshold: " + threshhold + "</body></html>");
-    }
-  });
-});
+
 app.get('/doit/level/:level?', function(req, resp) {
   db.view('log','level', {key: req.params.level},  function(err, docs) { 
     if(err) { resp.send(err); }
@@ -91,11 +64,6 @@ app.get('/doit/level/:level?', function(req, resp) {
       }
   });
 
-});
-app.get('/', function(req, resp) { 
-    var diffs = jsDiff.diffWords("hello my name is patrick. I am awesome!", "hello my name is jason. I am cool!");
-    var diffString=diffHTMLGenerator(diffs);
-    resp.send("<html><body>"+diffString+"</body></html>");
 });
 
 var passesThreshold = function(objDiff, threshold) {

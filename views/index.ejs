@@ -2,5 +2,24 @@
 <div id="list"></div>
 <script src="/javascripts/logweb2.js"></script>
 <script>
+    var myLogCollection = null;
+    $().ready(function() {
+        $("#templates").load("/javascripts/template.html", function(responseText,textStatus, xhr){
+        if(textStatus=="success" || textStatus=="notmodified") {
+          myLogCollection = new LogCollection();
+          var dateFormat = 'YYYY-MM-DD';
+          var defaultFilter = new Filter({
+            sites: <%- '["' + filter.site.join('","')+'"]' %>,
+            level: ["ERROR","WARNING","INFO","VERBOSE"],
+            dates: [<% for(i=0;i<filter.date.length;i++) { %>
+            		new moment('<%=filter.date[i]%>',dateFormat).toDate()
+            		<% }%> ],
+            filter:[]
+          });
+          MyApp.start({logs: myLogCollection, filterOptions: defaultFilter}); 
+        }
+      });
+        
+    });
 
-</script>
+  </script>

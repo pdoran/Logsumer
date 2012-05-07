@@ -45,21 +45,6 @@
   <script src="/javascripts/backbone.marionette.min.js"></script>
   <script src="/javascripts/moment.min.js"></script>
   <script src="/javascripts/helpers.js"></script>
-  <script>
-    var myLogCollection = null;
-    $().ready(function() {
-      //$('#filter').modal({backdrop:true,keyboard:true,show:true});
-        
-        $("#templates").load("/javascripts/template.html", function(responseText,textStatus, xhr){
-        if(textStatus=="success" || textStatus=="notmodified") {
-          myLogCollection = new LogCollection();
-          MyApp.start({logs: myLogCollection}); 
-        }
-      });
-        
-    });
-
-  </script>
 </head>
 <div class="navbar navbar-fixed-top">
   <div class="navbar-inner">

@@ -1,4 +1,8 @@
-var moment = require('moment');
+var moment = require('moment'),
+    cache = require('./cachestore.js').Cache.init(["site","date"]),
+    events = require('events').EventEmitter,
+    _ = require('underscore'),
+    util = require('util');
 
 var Logsumer = module.exports = function(db) {
   var sites = [];
@@ -8,7 +12,7 @@ var Logsumer = module.exports = function(db) {
       var ts = moment(object.timestamp);
       object.date = ts.format("YYYY-MM-DD");
       object.time = ts.hours()+":"+ts.minutes()+":"+ts.seconds()+"."+ts.milliseconds();
-      object.timestamp = object.timestamp.toJSON();
+      object.timestamp = ts.toDate().toJSON();
       object.timezone = ts.format("Z");
     } else {
       var ts = new Date();
@@ -22,6 +26,9 @@ var Logsumer = module.exports = function(db) {
       callback(err,doc);
     });
   };
+  self.save = function(object,callback) {
+    db.save(object,callback);
+  }
   self.findById = function(id,callback) {
     db.findById(id,function(err,doc){
       callback(err,doc);
@@ -30,7 +37,7 @@ var Logsumer = module.exports = function(db) {
   self.filter = function(filter,callback) {
     db.select({db:"log",view:"filter",query:filter},function(err,docs){
       callback(err,docs);
-    })
+    });
   }
   self.selectLevel = function(level,callback) {
     db.select({db:"log",view:"level",query:{"level": level}},function(err, docs) { 
@@ -69,6 +76,39 @@ var Logsumer = module.exports = function(db) {
     { 
       db.distinct("site",callback);
     }
+  }
+  self.distincts = function(keys,callback) {
+    var calls = new events();
+    var keyCount = (typeof keys === "string") ? 1 : keys.length;
+    var returnObject = {};
+    var errs = [];
+    calls.on('complete',function(key,value){
+      console.log("Getting distincts completed for " + key);
+      keyCount--;
+      returnObject[key] = value;
+      if(keyCount===0) {
+        if(errs.length===0) callback(null,returnObject);
+        else callback(errs,returnObject);
+      }
+    });
+    calls.on('error',function(err){
+      console.log("Getting distincts error " + err);
+      keyCount--;
+      errs.push(err);
+      if(keyCount===0) {
+        callback(errs,returnObject);
+      }
+    });
+    _.each(keys,function(key){
+      var cb = function(err,values) {
+        if(err) calls.emit('error',err);
+        else {
+          calls.emit('complete',key,values);
+        }
+      }
+      cache.get(key,db.distinct,cb);
+    });
+
   }
   return self;
 }

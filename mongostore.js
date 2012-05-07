@@ -23,6 +23,13 @@ var MongoStore = (function() {
 			fn.apply(context,params);
 		}
 	}
+	function blackPick(obj,blacklist) {
+		var result = {};
+    	_.each(_.keys(obj), function(key) {
+      		if (!(_.include(blacklist,key))) result[key] = obj[key];
+    	});
+    	return result;
+	}
 
 	self.connect = function(host,port,db,user,pass) {
 		connectionGuid = guidGenerator();
@@ -66,6 +73,9 @@ var MongoStore = (function() {
 		    	});
 	    	}
 	    };
+	    dbConnectionWrapper(function(db){
+	    	console.log("Connecting...");
+	    });
     	return self;
 	};
 	self.create = function(object, callback) {
@@ -78,10 +88,12 @@ var MongoStore = (function() {
 	self.save  = function(object, callback) {
 		dbConnectionWrapper(function(db){
 			db.collection(logCollection,{},function(err,collection){
+				var objectToSet = blackPick(object,["_id"]);
 				collection.findAndModify(
 					{_id: new ObjectID(object._id)},
 					[["_id",1]],
-					object,
+					objectToSet,
+					{new:true},
 					function(err,doc){
 					if(err) { console.log("ERROR Saving"); callback(err,doc); }
 					else { 
