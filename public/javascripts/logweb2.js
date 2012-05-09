@@ -26,6 +26,13 @@ MyApp.addInitializer(function(options){
   myFilter.on("change:filter", function(model,filter){
   	options.logs.applyFilter(filter);
   });
+  if(options.faye) {
+  	var fayeClient = new Faye.Client(options.faye);
+  	fayeClient.subscribe("/filter/update/defaults",function(object){
+  		myFilter.set(object.key,object.values);
+  	});
+  	options.logs.linkSubscription(fayeClient);
+  }
   MyApp.listRegion.show(logCollectionView);
   MyApp.filterModalRegion.show(new FilterModal({model:myFilter}));
   Backbone.history.start();
@@ -76,10 +83,13 @@ Filter = Backbone.Model.extend({
 LogCollection = Backbone.Collection.extend({
 	model:Log,
 	url: "log",
+	client:null,
+	myFilter:null,
 	level: function(level) {
     	this.applyFilter({level:level});
   	},
   	applyFilter: function(filter) {
+  		this.myFilter = filter;
   		this.fetch({data: filter,
   			success: function(collection,response){
   				console.log(collection.toJSON());
@@ -87,7 +97,14 @@ LogCollection = Backbone.Collection.extend({
   			error: function(collection,response){
 					console.log(response);
   			}});
-  	}
+  	},
+  	linkSubscription: function(client) {
+  		this.client = client;
+  		var self = this;
+  		client.subscribe("/logs/new", function(object) {
+  			self.add(object,{at:0});
+  		});
+  	},
   	
 });
 
@@ -179,7 +196,12 @@ FilterModal = Backbone.Marionette.ItemView.extend({
 
 LogList = Backbone.Marionette.CollectionView.extend({
 	itemView: LogRow,
-	tagName: "ul"
+	tagName: "ul",
+	appendHtml: function(collectionView, itemView) {
+  	var itemIndex;
+  	itemIndex = collectionView.collection.indexOf(itemView.model);
+  	return collectionView.$el.insertAt(itemIndex, itemView.$el);
+	}
 });
 
 

@@ -7,12 +7,15 @@ var moment = require('moment'),
 var Logsumer = module.exports = function(db) {
   var sites = [];
   var self = {};
+  self.cacheEmitter = cache.emitter;
+  self.emitter = new events();
   self.create = function(object,callback) {
     if(object.timestamp) { 
-      var ts = moment(object.timestamp);
+      var dateParts = object.timestamp.split("T");
+      var ts = moment(dateParts[0],"YYYY-MM-DD");
       object.date = ts.format("YYYY-MM-DD");
       object.time = ts.hours()+":"+ts.minutes()+":"+ts.seconds()+"."+ts.milliseconds();
-      object.timestamp = ts.toDate().toJSON();
+      //object.timestamp = ts.toDate().toJSON();
       object.timezone = ts.format("Z");
     } else {
       var ts = new Date();
@@ -23,6 +26,7 @@ var Logsumer = module.exports = function(db) {
     }
     db.create(object,function(err,doc) {
       console.log("Creating...");
+      self.emitter.emit("create",doc);
       callback(err,doc);
     });
   };
@@ -109,6 +113,13 @@ var Logsumer = module.exports = function(db) {
       cache.get(key,db.distinct,cb);
     });
 
-  }
+  };
+  self.updateCache = function(object) {
+    _.each(object,function(value,key){
+      if(cache.hasKey(key)) {
+        cache.updateIfNeeded(key,value);
+      }
+    });
+  };
   return self;
 }

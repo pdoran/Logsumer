@@ -4,17 +4,24 @@ var express = require('express'),
     mongoStore = require('./mongostore').Mongo,
     dnode = require('dnode'),
     app = express.createServer(),
+    faye = require('faye'),
     Logsumer = require('./logsumer'),
     db_mongo = mongoStore.connect('localhost',27017,"log","","");
 
 app.use(express.bodyParser());
+
 var diffBucket = {
   "ERROR": [],
   "WARNING": [],  
   "INFO": []
 };
 
+var bayeux = new faye.NodeAdapter({mount: '/faye', timeout: 45});
 var logger = new Logsumer(db_mongo);
+
+var dnodePort = 7000;
+var bayeuxPort = 8000;
+var expressPort = 3000;
 //dnode functions
 var server = dnode({
   findById : function(id, cb) {
@@ -40,7 +47,7 @@ var server = dnode({
     logger.distincts(key,cb);
   }
 });
-server.listen(7000);
+
 
 app.post('/logs', function(req, resp) { 
     logger.create(req.body,function(err,doc){
@@ -137,4 +144,19 @@ var GroupItem = function(item, groupObject) {
   return groupObject;
 }
 
-app.listen(3000);
+app.listen(expressPort);
+server.listen(dnodePort);
+bayeux.listen(bayeuxPort);
+
+var client = new faye.Client('http://localhost:'+bayeuxPort+'/faye');
+
+logger.emitter.on("create",function(object){
+  console.log("Queue my post processing");
+  logger.updateCache(object);
+  //we have a new log message push a message in
+  client.publish("/logs/new",object);
+});
+logger.cacheEmitter.on("cache:update",function(key,value){
+  var obj = {"key": key, "values": value};
+  client.publish("/cache/update/",obj);
+});
